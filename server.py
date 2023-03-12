@@ -1,17 +1,20 @@
-import logging
+import os
 from asyncio import StreamReader, StreamWriter, run, start_server
 from collections import namedtuple
 from dataclasses import dataclass, field
 
-SERVER_NAME = "server"
+from dotenv import load_dotenv
+
+from logger_set import get_logger
+
+load_dotenv()
+SERVER_HOST = os.getenv('SERVER_HOST', "127.0.0.1")
+SERVER_PORT = int(os.getenv('SERVER_PORT', 8000))
+SERVER_NAME = os.getenv('SERVER_NAME', "server")
+
 CIRCLE_LIST_SIZE = 20
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s.%(msecs)03d [%(name)s]: %(message)s",
-    datefmt="%d-%m-%Y %H:%M:%S",
-)
-logger = logging.getLogger("server")
+logger = get_logger(SERVER_NAME)
 
 User = namedtuple("User", ["name", "address", "writer"])
 
@@ -47,8 +50,8 @@ class CircleList:
 
 @dataclass
 class Server:
-    host: str = "127.0.0.1"
-    port: int = 8000
+    host: str = SERVER_HOST
+    port: int = SERVER_PORT
     _passport: dict[str, dict[int, StreamWriter]] = field(default_factory=dict)
     _last_messages: CircleList = CircleList()
 
